@@ -47,3 +47,15 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# OSX files
+*.DS_Store
+Thumbs.db
+
+# RStudio files
+.Rproj.user/*
+Rproj.user
+.Rproj.user
+/.Rprofile
+/renv.lock
+/renv
