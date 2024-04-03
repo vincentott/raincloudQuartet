@@ -4,6 +4,8 @@
 
 # Libraries ----
 library(moments)
+library(ggplot2)
+library(ggrain)
 
 
 
@@ -47,6 +49,25 @@ inspectStats <- function(inputVector) {
 getP <- function(inputVector, mu = 0) {
   return(round(t.test(inputVector, alternative = "greater", mu = mu)[["p.value"]], 3))
 }  # End getP()
+
+
+
+# Matejka & Fitzmaurice (2017) ----
+
+isErrorOk <- function(inputVector, targetMean, targetSd, targetPValue) {
+
+  inputMean   <- round(mean(inputVector), 2)
+  inputSd     <- round(sd(inputVector), 2)
+  inputPValue <- getP(inputVector)
+
+  matchMean   <- inputMean   == targetMean
+  matchSd     <- inputSd     == targetSd
+  matchPValue <- inputPValue == targetPValue
+
+  sameStats <- matchMean && matchSd && matchPValue
+
+  if (sameStats) return(TRUE) else return(FALSE)
+}
 
 
 

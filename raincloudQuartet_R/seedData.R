@@ -10,8 +10,6 @@
 
 
 # Libraries ----
-library(ggplot2)
-library(ggrain)
 source("helperFunctions.R")
 
 
@@ -19,15 +17,6 @@ source("helperFunctions.R")
 # Hyperparameters ----
 sampleSize   <- 111  # Hommage to Anscombe (1973)
 targetPValue <- 0.049
-
-
-
-# rnorm() ----
-set.seed(1)
-normalStart <- rnorm(sampleSize, 0, 1)
-makeCloud(normalStart)
-inspectStats(normalStart)
-getP(normalStart)
 
 
 
@@ -73,47 +62,8 @@ while(currentPValue != 0.049) {
   sortedSeedData[length(sortedSeedData)] <- sortedSeedData[length(sortedSeedData)] + 0.01
   currentPValue <- getP(sortedSeedData)
 }
-# print(sortedSeedData[length(sortedSeedData)])
 inspectStats(sortedSeedData)
 makeCloud(sortedSeedData)
 getP(sortedSeedData)
 
-# # Inspect cumulative density function #test
-# seedCdf <- ecdf(sortedSeedData)
-# normCdf <- ecdf(rnorm(sampleSize, 0.04, 0.27))  # Mean and SD from sortedSeedData
-# plot(seedCdf)
-# lines(normCdf, col='red')
-# makeCloud(rnorm(sampleSize, 0.04, 0.27))
-# inspectStats(rnorm(sampleSize, 0.04, 0.27))
-# makeCloud(sortedSeedData)
-# # Extract ECDF values for a specific set of input values
-# x_values <- seq(min(data, data2), max(data, data2), length.out = 100)  # Generating a sequence of x values
-#
-# # Extract ECDF values for the first data
-# ecdf_values_data <- p(x_values)
-#
-# # Extract ECDF values for the second data
-# ecdf_values_data2 <- p2(x_values)
-
-
-
-# Storage ----
-# set.seed(1)
-# oneNormal  <- rnorm(1000, 5,1)
-# twoBimodal <- c(rnorm(500, 3.5, 0.5), rnorm(500, 6.5, 0.5))
-# threeSkewed <- c(rnorm(500, 3, 1), rnorm(500, 6.5, 3))
-# fourOutliers <- c(rnorm(900, 4.5, 1), runif(100, 7, 14))
-# par(mfrow=c(2,2))
-# hist(oneNormal)
-# hist(twoBimodal)
-# hist(threeSkewed)
-# hist(fourOutliers)
-# mean(oneNormal)
-# mean(twoBimodal)
-# mean(threeSkewed)
-# mean(fourOutliers)
-#
-# # for (i in 1:lenght(list(oneNormal, twoBimodal, threeSkewed, fourOutliers))) {
-# #   print(inspect(i))
-# # }
-
+# write.csv(sortedSeedData, "./quartetData/seedData.csv")  # Commented out just for safety
