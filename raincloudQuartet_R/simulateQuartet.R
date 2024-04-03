@@ -43,14 +43,17 @@ inspectStats(normCurrent)
 getP(normCurrent)
 print(iteration)
 
-write.csv(normCurrent, "./quartetData/normalData.csv")  # Commented out just for safety
+# write.csv(normCurrent, "./quartetData/normalData.csv")  # Commented out just for safety
 
 
 
 # II: Right skewed distribution ----
-
-
-
+# To mimic typical response time data, we want positively skewed data.
+# First attempt aims for skewness =  3; see blanca2013 in methodology journal
+set.seed(1)
+v1skewedData <- simulateAnnealing(
+  seedData, skewness, 3, maxIter = 200, targetMean, targetSd, targetPValue
+)
 
 
 
