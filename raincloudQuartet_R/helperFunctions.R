@@ -23,6 +23,7 @@ makeCloud <- function(inputVector) {
     geom_errorbar(aes(ymin = meanValue - sdValue, ymax = meanValue + sdValue), width = 0.05, color = "blue", lwd = 1) +
     theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
     labs(title = title) +
+    ylim(-2, 2)
     ylab(title)  # Because of coord_flip()
   return(plot)
 }  # End makeCloud()
@@ -61,10 +62,14 @@ simulateAnnealing <- function(
 
   for (i in 1:maxIter) {
     currentTemperature <- calculateTemperature(i, maxIter)
+
+    if (i %% 50000 == 0) {
+      print(gettextf("Iteration %s with temperature %s", i, currentTemperature))
+    }
     testData           <- perturb(currentData, fitFunction, fitTarget, currentTemperature)
-    currentData        <- if (isErrorOk(testData, targetMean, targetSd, targetPValue)) testData
-    print(i)
-    if (i %% 1000 == 0) print(paste("current Iteration:", i))
+    if (isErrorOk(testData, targetMean, targetSd, targetPValue)) {
+      currentData <- testData
+    }
   }
   return(currentData)
 }  # End simulateAnnealing()
@@ -75,7 +80,7 @@ simulateAnnealing <- function(
 # Based on their original python code:
 # https://github.com/jmatejka/same-stats-different-graphs/blob/master/samestats/samestats.py
 # as well as ChatGPT
-calculateTemperature <- function(currentIter, maxIter, maxTemp = 0.4, minTemp = 0) {
+calculateTemperature <- function(currentIter, maxIter, maxTemp = 0.4, minTemp = 0.01) {
   outScurve   <- sCurve((maxIter - currentIter) / maxIter)
   temperature <- (maxTemp - minTemp) * outScurve + minTemp
   return(temperature)
@@ -91,53 +96,42 @@ sCurve <- function(x) {
   numerator   <- x^2
   denominator <- x^2 + (1 - x)^2
   return(numerator / denominator)
-
-  # # ChatGPT on calculateTemperature() and sCurve() based on original python code
-  # # Define the function to calculate the temperature
-  # calculate_temperature <- function(i, iters, max_temp = 0.4, min_temp = 0) {
-  #   s_curve <- function(x) {
-  #     return(x^2 / (x^2 + (1 - x)^2))
-  #   }
-  #
-  #   t <- (max_temp - min_temp) * s_curve(((iters - i) / iters)) + min_temp
-  #   return(t)
-  # }
-  #
-  # # Example usage
-  # max_temp <- 0.4
-  # min_temp <- 0
-  # iters <- 1000
-  #
-  # # Calculate temperature for iteration 'i'
-  # i <- 500
-  # temperature <- calculate_temperature(i, iters, max_temp, min_temp)
-  # print(temperature)
-
 }  # End sCurve()
 
 
 
 # perturb(); see Matejka & Fitzmaurice (2017) ----
 perturb <- function(currentData, fitFunction, fitTarget, currentTemperature) {
+
   currentLoss  <- abs(fitTarget - fitFunction(currentData))
+  # print(gettextf(" Current Loss:   %s", currentLoss))
+
+  perturbedData <- currentData
   while (TRUE) {
-    perturbedData <- moveRandomPoint(currentData)  # FIX  THIS LINE OVER HERE!
+    # perturbedData <- moveRandomPoint(currentData)  # FIX  THIS LINE OVER HERE!
+
+    randomIndices <- sample(1:length(perturbedData), 6)
+    perturbedData[randomIndices] <- perturbedData[randomIndices] + rnorm(6) * 0.50
+    perturbedData <- round(perturbedData, 4)
     perturbedLoss <- abs(fitTarget - fitFunction(perturbedData))
-    betterFit     <- perturbedLoss < currentLoss
-    worseFitOkay  <- runif(1) < currentTemperature  # As temperature cools down, less likely to accept perturbedData with worse fit
-    if (betterFit || worseFitOkay) return(perturbedData)
+    # print(gettextf(" Perturbed Loss: %s", perturbedLoss))
+
+    betterFit       <- perturbedLoss < currentLoss
+    acceptWorseFit  <- runif(1) < currentTemperature  # As temperature cools down, less likely to accept perturbedData with worse fit
+
+    if (betterFit || acceptWorseFit) break
   }
+
+  return(perturbedData)
 }  # End perturb()
 
 
 # moveRandomPoint(); see Matejka & Fitzmaurice (2017) ----
 moveRandomPoint <- function(inputData) {
-  randomIndex  <- sample(1:length(inputData), 1)
-  change       <- rnorm(1) * 0.10
-  changedPoint <- inputData[randomIndex] + change
-  outputData   <- inputData
-  outputData[randomIndex] <- changedPoint
-  return(outputData)
+  randomIndices          <- sample(1:length(inputData), 6)
+  change                 <- rnorm(6) * 0.10
+  inputData[randomIndices] <- inputData[randomIndices] + change
+  return(inputData)
 }  # End moveRandomPoint()
 
 

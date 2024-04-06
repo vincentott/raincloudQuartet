@@ -44,16 +44,100 @@ getP(normCurrent)
 print(iteration)
 
 # write.csv(normCurrent, "./quartetData/normalData.csv")  # Commented out just for safety
+normalData <- read.csv("./quartetData/normalData.csv")
+normalData <- as.vector(normalData[ , 2])
+makeCloud(normalData)
+inspectStats(normalData)
+getP(normalData)
 
 
 
 # II: Right skewed distribution ----
 # To mimic typical response time data, we want positively skewed data.
 # First attempt aims for skewness =  3; see blanca2013 in methodology journal
-set.seed(1)
-v1skewedData <- simulateAnnealing(
-  seedData, skewness, 3, maxIter = 200, targetMean, targetSd, targetPValue
-)
+
+# source("helperFunctions.R")
+# set.seed(1)
+# v1skewedData <- simulateAnnealing(  # Try normalData start
+#   startData    = normalData,
+#   fitFunction  = skewness,
+#   fitTarget    = 3,
+#   maxIter      = 200000,
+#   targetMean   = targetMean,
+#   targetSd     = targetSd,
+#   targetPValue = targetPValue
+# )
+#
+# inspectStats(normalData)
+# makeCloud(normalData)
+# inspectStats(v1skewedData)
+# makeCloud(v1skewedData)
+#
+# source("helperFunctions.R")
+# set.seed(1)
+# v2skewedData <- simulateAnnealing(  # Try seedData start -> looks nicer
+#   startData    = seedData,
+#   fitFunction  = skewness,
+#   fitTarget    = 3,
+#   maxIter      = 200000,
+#   targetMean   = targetMean,
+#   targetSd     = targetSd,
+#   targetPValue = targetPValue
+# )
+# inspectStats(seedData)
+# makeCloud(seedData)
+# inspectStats(v2skewedData)
+# makeCloud(v2skewedData)
+# skewness(v2skewedData)
+
+
+
+# set.seed(1)
+# startTime <- Sys.time()
+# skewedData500k <- simulateAnnealing(  # seedData start with 500k iters
+#   startData    = seedData,
+#   fitFunction  = skewness,
+#   fitTarget    = 3,
+#   maxIter      = 500000,
+#   targetMean   = targetMean,
+#   targetSd     = targetSd,
+#   targetPValue = targetPValue
+# )
+# endTime <- Sys.time()
+# timeTaken <- endTime - startTime
+# timeTaken
+#
+# skewness(skewedData500k)
+# makeCloud(normalData)
+# makeCloud(skewedData500k)
+
+
+
+# set.seed(1)
+# startTime <- Sys.time()
+# skewedData200k <- simulateAnnealing(  # seedData start with 200k iters
+#   startData    = seedData,
+#   fitFunction  = skewness,
+#   fitTarget    = 3,
+#   maxIter      = 200000,
+#   targetMean   = targetMean,
+#   targetSd     = targetSd,
+#   targetPValue = targetPValue
+# )
+# endTime <- Sys.time()
+# timeTaken <- endTime - startTime
+# timeTaken
+# skewness(skewedData200k)
+# makeCloud(normalData)
+# makeCloud(skewedData200k)
+
+# write.csv(skewedData200k, "./quartetData/skewedData200k.csv")  # Commented out just for safety
+skewedData200k <- read.csv("./quartetData/skewedData200k.csv")
+skewedData200k <- as.vector(skewedData200k[ , 2])
+
+
+
+
 
 
 
