@@ -267,3 +267,25 @@ makeCloud(v1skewedData, axisMin, axisMax)
 makeCloud(v1bimodalData, axisMin, axisMax)
 makeCloud(v1outlierData, axisMin, axisMax)
 
+v1RaincloudQuartet <- data.frame(
+
+  distribution = c(
+    rep("normal",  111),
+    rep("skewed",  111),
+    rep("bimodal", 111),
+    rep("outlier", 111)
+  ),
+
+  data <- c(
+    normalData,
+    v1skewedData,
+    v1bimodalData,
+    v1outlierData
+  )
+
+)
+colnames(v1RaincloudQuartet)[2] <- "data"
+v1RaincloudQuartet$distribution <- as.factor(v1RaincloudQuartet$distribution)
+
+# write.csv(v1RaincloudQuartet, "./quartetData/v1RaincloudQuartet.csv")
+
