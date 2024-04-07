@@ -4,13 +4,14 @@
 
 # Libraries ----
 library(moments)
+library("mousetrap")  # bimodality_coefficient()
 library(ggplot2)
 library(ggrain)
 
 
 
 # makeCloud() ----
-makeCloud <- function(inputVector) {
+makeCloud <- function(inputVector, axisMin = -2, axisMax = 2) {
   title     <- deparse(substitute(inputVector))
   df        <- as.data.frame(inputVector)
   meanValue <- mean(inputVector)
@@ -23,7 +24,7 @@ makeCloud <- function(inputVector) {
     geom_errorbar(aes(ymin = meanValue - sdValue, ymax = meanValue + sdValue), width = 0.05, color = "blue", lwd = 1) +
     theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
     labs(title = title) +
-    ylim(-2, 2)
+    ylim(axisMin, axisMax)
     ylab(title)  # Because of coord_flip()
   return(plot)
 }  # End makeCloud()
@@ -55,8 +56,10 @@ getP <- function(inputVector, mu = 0) {
 
 # simulateAnnealing(); see Matejka & Fitzmaurice (2017) ----
 simulateAnnealing <- function(
-    startData, fitFunction, fitTarget, maxIter = 20000, targetMean, targetSd, targetPValue
+    startData, fitFunction, fitTarget, maxIter = 20000, shake = 0.50, targetMean, targetSd, targetPValue
 ) {
+
+  startTime <- Sys.time()
 
   currentData <- startData
 
@@ -66,11 +69,15 @@ simulateAnnealing <- function(
     if (i %% 50000 == 0) {
       print(gettextf("Iteration %s with temperature %s", i, currentTemperature))
     }
-    testData           <- perturb(currentData, fitFunction, fitTarget, currentTemperature)
+    testData           <- perturb(currentData, fitFunction, fitTarget, currentTemperature, shake)
     if (isErrorOk(testData, targetMean, targetSd, targetPValue)) {
       currentData <- testData
     }
   }
+
+  endTime <- Sys.time()
+  timeTaken <- round(difftime(endTime, startTime, units = "mins"), 2)
+  print(gettextf("Simulation ran for %s mins.", timeTaken))
   return(currentData)
 }  # End simulateAnnealing()
 
@@ -101,38 +108,26 @@ sCurve <- function(x) {
 
 
 # perturb(); see Matejka & Fitzmaurice (2017) ----
-perturb <- function(currentData, fitFunction, fitTarget, currentTemperature) {
+perturb <- function(currentData, fitFunction, fitTarget, currentTemperature, shake) {
 
   currentLoss  <- abs(fitTarget - fitFunction(currentData))
-  # print(gettextf(" Current Loss:   %s", currentLoss))
 
   perturbedData <- currentData
   while (TRUE) {
-    # perturbedData <- moveRandomPoint(currentData)  # FIX  THIS LINE OVER HERE!
 
     randomIndices <- sample(1:length(perturbedData), 6)
-    perturbedData[randomIndices] <- perturbedData[randomIndices] + rnorm(6) * 0.50
+    perturbedData[randomIndices] <- perturbedData[randomIndices] + rnorm(6) * shake
+    perturbedData <- perturbedData[order(perturbedData)]
     perturbedData <- round(perturbedData, 4)
     perturbedLoss <- abs(fitTarget - fitFunction(perturbedData))
-    # print(gettextf(" Perturbed Loss: %s", perturbedLoss))
 
     betterFit       <- perturbedLoss < currentLoss
     acceptWorseFit  <- runif(1) < currentTemperature  # As temperature cools down, less likely to accept perturbedData with worse fit
-
     if (betterFit || acceptWorseFit) break
   }
 
   return(perturbedData)
 }  # End perturb()
-
-
-# moveRandomPoint(); see Matejka & Fitzmaurice (2017) ----
-moveRandomPoint <- function(inputData) {
-  randomIndices          <- sample(1:length(inputData), 6)
-  change                 <- rnorm(6) * 0.10
-  inputData[randomIndices] <- inputData[randomIndices] + change
-  return(inputData)
-}  # End moveRandomPoint()
 
 
 
