@@ -158,28 +158,106 @@ bimodality_coefficient(bimodal_custom_i050_s05_t650)
 skewness(bimodal_custom_i050_s05_t650)
 
 # This looks great!
+# However, maybe we can run it for a few more iterations, to get a slightly negative skew?
+
+# bimodal_custom_i055_s05_t650
+set.seed(1)
+bimodal_custom_i055_s05_t650 <- simulateAnnealing(
+  startData    = bimodal_normStart_i250_s05_t700,
+  fitFunction  = bimodality_coefficient,
+  fitTarget    = .650,
+  maxIter      = 55000,
+  shake        = 0.05,
+  targetMean   = targetMean,
+  targetSd     = targetSd,
+  targetPValue = targetPValue
+)
+makeCloud(bimodal_custom_i055_s05_t650, -1.1, 1.1)
+bimodality_coefficient(bimodal_custom_i055_s05_t650)
+skewness(bimodal_custom_i055_s05_t650)
+
+
 # However, the densities are a bit cut-off.
 # Thus, some manual fine-tuning just like for skewedData
+wipBimodalData <- bimodal_custom_i055_s05_t650[order(bimodal_custom_i055_s05_t650)]
+makeCloud(wipBimodalData, -1.1, 1.1)
+isErrorOk(wipBimodalData, targetMean, targetSd, targetPValue)
+
+# First lower tail
+wipBimodalData[1] <- wipBimodalData[1] - 0.08
+makeCloud(wipBimodalData, -1.1, 1.1)
+isErrorOk(wipBimodalData, targetMean, targetSd, targetPValue)
+inspectStats(wipBimodalData)
+getP(wipBimodalData)  # P is too high now.
+
+# Increase another low value.
+wipBimodalData[1:10]
+# Maybe take
+wipBimodalData[6]
+
+fine <- isErrorOk(wipBimodalData, targetMean, targetSd, targetPValue)
+while (fine == FALSE) {
+  wipBimodalData[6] <- wipBimodalData[6] + 0.0001
+  fine <- isErrorOk(wipBimodalData, targetMean, targetSd, targetPValue)
+}
+print(fine)
+
+makeCloud(wipBimodalData, -1.1, 1.1)
 
 
-# # # # # # # Storage
-# # # Lets keep the second contender with negative skew for now.
-# # write.csv(bimodal_custom_i050_s05_t650, "./quartetData/v1bimodalData.csv")  # Commented out just for safety
-# v1bimodalData <- read.csv("./quartetData/v1bimodalData.csv")
-# v1bimodalData <- as.vector(v1bimodalData[ , 2])
-# identical(v1bimodalData, bimodal_custom_i050_s05_t650)
+# Now upper tail
+upperWipBimodalData <- wipBimodalData[order(wipBimodalData)]  # Assign to new object and restore order.
+tail(upperWipBimodalData, 10)
+upperWipBimodalData[111] <- upperWipBimodalData[111] + 0.15
+makeCloud(upperWipBimodalData, -1.1, 1.1)
+inspectStats(upperWipBimodalData)
+getP(upperWipBimodalData)  # P is now too low.
+
+# Interim summary: Right tails is fading out more, but the one point also looks a bit lonely.
+# I will increase another value, and then tune down the p value.
+upperWipBimodalData[109:111]
+upperWipBimodalData[107] <- 0.5
+makeCloud(upperWipBimodalData, -1.1, 1.1)
+
+isErrorOk(upperWipBimodalData, targetMean, targetSd, targetPValue)
+inspectStats(upperWipBimodalData)
+getP(upperWipBimodalData)
+
+# Decrease another high value to lower the target statistics.
+tail(upperWipBimodalData, 10)
+# Maybe take
+upperWipBimodalData[104]
+
+fine <- isErrorOk(upperWipBimodalData, targetMean, targetSd, targetPValue)
+while (fine == FALSE) {
+  upperWipBimodalData[104] <- upperWipBimodalData[104] - 0.0001
+  fine <- isErrorOk(upperWipBimodalData, targetMean, targetSd, targetPValue)
+}
+print(fine)
+
+
+makeCloud(upperWipBimodalData, -1.1, 1.1)
+inspectStats(upperWipBimodalData)
+getP(upperWipBimodalData)
+
+
+# write.csv(upperWipBimodalData, "./quartetData/bimodalData.csv")  # Commented out just for safety
+bimodalData <- read.csv("./quartetData/bimodalData.csv")
+bimodalData <- as.vector(bimodalData[ , 2])
+
+
+
 
 
 # IV: Outliers ----
 
 # Lets look at the current quartet
-makeCloud(normalData, -1, 1.075)
-makeCloud(v1skewedData, -1, 1.075)
-makeCloud(v1bimodalData, -1.25, 1.075)
+makeCloud(normalData, -1.1, 1.1)
+makeCloud(skewedData, -1.1, 1.1)
+makeCloud(bimodalData, -1.1, 1.1)
 
 
-# Outliers start after about 2 standard deviations.
-# Lets do 11 on each side.
+# Define outlier loss
 outlierLoss <- function(inputData) {
   loss <- 0
   sortedData <- inputData[order(inputData)]
@@ -201,8 +279,9 @@ outlierLoss <- function(inputData) {
 sortedNormalData <- normalData[order(normalData)]  # Also order it, to get correct loss in very first iteration.
 outlierLoss(sortedNormalData)
 
+# Execute all of the following code until STOP STOP STOP
 set.seed(1)
-v1Outlier <- simulateAnnealing(
+wipOutlierData <- simulateAnnealing(
   startData         = sortedNormalData,
   fitFunction       = outlierLoss,
   fitTarget         = 0,
@@ -213,12 +292,28 @@ v1Outlier <- simulateAnnealing(
   targetPValue      = targetPValue,
   orderAfterPerturb = TRUE
 )
-makeCloud(v1Outlier, -1, 1.075)  # That looks good!
-outlierLoss(v1Outlier)
+makeCloud(wipOutlierData, -1.1, 1.1)
+outlierLoss(wipOutlierData)
+finalOutlierData <- simulateAnnealing(   # I forgot to set.seed() - and found that this looks nicer.
+  startData         = sortedNormalData,  # So, this will be the final version.
+  fitFunction       = outlierLoss,
+  fitTarget         = 0,
+  maxIter           = 200000,
+  shake             = 0.05,
+  targetMean        = targetMean,
+  targetSd          = targetSd,
+  targetPValue      = targetPValue,
+  orderAfterPerturb = TRUE
+)
+# STOP STOP STOP
+makeCloud(finalOutlierData, -1.1, 1.1)
+outlierLoss(finalOutlierData)
+
 
 # write.csv(v1Outlier, "./quartetData/v1outlierData.csv")  # Commented out just for safety
 v1outlierData <- read.csv("./quartetData/v1outlierData.csv")
 v1outlierData <- as.vector(v1outlierData[ , 2])
+makeCloud(v1outlierData, -1.1, 1.1)
 
 
 
