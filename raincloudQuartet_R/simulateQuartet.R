@@ -53,27 +53,11 @@ getP(normalData)
 
 # II: Right skewed distribution ----
 # To mimic typical response time data, we want positively skewed data.
-# First attempt aims for skewness =  3; see blanca2013 in methodology journal
-
-# iterations 200k, shake 0.10
-set.seed(1)
-skewedI200S10 <- simulateAnnealing(
-  startData    = seedData,
-  fitFunction  = skewness,
-  fitTarget    = 3,
-  maxIter      = 200000,
-  shake        = 0.10,
-  targetMean   = targetMean,
-  targetSd     = targetSd,
-  targetPValue = targetPValue
-)
-makeCloud(normalData)
-makeCloud(skewedI200S10)
-skewness(skewedI200S10)
+# Aim for skewness =  3; see blanca2013 in methodology journal
 
 # iterations 200k, shake 0.50
 set.seed(1)
-skewedI200S50 <- simulateAnnealing(
+v1SkewedData <- simulateAnnealing(
   startData    = seedData,
   fitFunction  = skewness,
   fitTarget    = 3,
@@ -83,49 +67,47 @@ skewedI200S50 <- simulateAnnealing(
   targetSd     = targetSd,
   targetPValue = targetPValue
 )
-makeCloud(normalData)
-makeCloud(skewedI200S50)
-skewness(skewedI200S50)
+makeCloud(normalData, -1.1, 1.1)
+makeCloud(v1SkewedData, -1.1, 1.1)  # Looks good!
+skewness(v1SkewedData, -1.1, 1.1)
 
-# iterations 200k, shake 0.30
-set.seed(1)
-skewedI200S30 <- simulateAnnealing(
-  startData    = seedData,
-  fitFunction  = skewness,
-  fitTarget    = 3,
-  maxIter      = 200000,
-  shake        = 0.30,
-  targetMean   = targetMean,
-  targetSd     = targetSd,
-  targetPValue = targetPValue
-)
-makeCloud(normalData)
-makeCloud(skewedI200S30)
-skewness(skewedI200S30)
+# However, the left density is a bit cut-off.
+# Thus, some manual tuning.
+# First we order the data:
+wipSkewedData <- v1SkewedData[order(v1SkewedData)]
+isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
 
-# Conclusion:
-# 200k with 0.50 shake seems to have worked best.
-# Now, lets try 500k 0.10
-set.seed(1)
-skewedI500S10 <- simulateAnnealing(
-  startData    = seedData,
-  fitFunction  = skewness,
-  fitTarget    = 3,
-  maxIter      = 500000,
-  shake        = 0.10,
-  targetMean   = targetMean,
-  targetSd     = targetSd,
-  targetPValue = targetPValue
-)
-makeCloud(normalData)
-makeCloud(skewedI500S10)
-skewness(skewedI500S10)
-# That is also not as good.
+wipSkewedData[1] <- wipSkewedData[1] - 0.05
+makeCloud(v1SkewedData, -1.1, 1.1)
+makeCloud(wipSkewedData, -1.1, 1.1)
+isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
+inspectStats(wipSkewedData)
+getP(wipSkewedData)  # P is too high now.
 
-# # Lets keep I200S50 for now.
-# write.csv(skewedI200S50, "./quartetData/v1skewedData.csv")  # Commented out just for safety
-v1skewedData <- read.csv("./quartetData/v1skewedData.csv")
-v1skewedData <- as.vector(v1skewedData[ , 2])
+# So, we increase another low value.
+wipSkewedData[1:10]
+# Maybe take
+wipSkewedData[4]
+
+fine <- isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
+while (fine == FALSE) {
+  wipSkewedData[4] <- wipSkewedData[4] + 0.0001
+  fine <- isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
+}
+print(fine)
+
+
+# Final Check:
+makeCloud(v1SkewedData, -1.1, 1.1)
+makeCloud(wipSkewedData, -1.1, 1.1)
+isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
+inspectStats(wipSkewedData)
+getP(wipSkewedData)
+
+
+# write.csv(wipSkewedData, "./quartetData/skewedData.csv")  # Commented out just for safety
+skewedData <- read.csv("./quartetData/skewedData.csv")
+skewedData <- as.vector(skewedData[ , 2])
 
 
 
@@ -138,8 +120,7 @@ bimodality_coefficient(seedData)  # 0.507
 bimodality_coefficient(normalData)  # 0.27
 # pfister2013: > .555 indicates bimodality
 
-
-# Lets try startData = normalData; Note: seedData was not as good when I tried out various settings
+# startData = normalData // Note: seedData was not as good when I tried out various settings.
 # bimodal_normStart_i250_s05_t700
 set.seed(1)
 bimodal_normStart_i250_s05_t700 <- simulateAnnealing(
@@ -152,35 +133,16 @@ bimodal_normStart_i250_s05_t700 <- simulateAnnealing(
   targetSd     = targetSd,
   targetPValue = targetPValue
 )
-makeCloud(bimodal_normStart_i250_s05_t700, -0.8, 1.25)  # Not bad at all!
+makeCloud(bimodal_normStart_i250_s05_t700, -1.1, 1.1)  # Not bad at all!
 bimodality_coefficient(bimodal_normStart_i250_s05_t700)
 skewness(bimodal_normStart_i250_s05_t700)  # It would be great to have this, but with negative skewness!
 
-
-# Increase iterations
-# bimodal_normStart_i255_s05_t700
-set.seed(1)
-bimodal_normStart_i255_s05_t700 <- simulateAnnealing(
-  startData    = normalData,
-  fitFunction  = bimodality_coefficient,
-  fitTarget    = .700,
-  maxIter      = 255000,
-  shake        = 0.05,
-  targetMean   = targetMean,
-  targetSd     = targetSd,
-  targetPValue = targetPValue
-)
-makeCloud(bimodal_normStart_i255_s05_t700, -0.8, 1.25)
-bimodality_coefficient(bimodal_normStart_i255_s05_t700)
-skewness(bimodal_normStart_i255_s05_t700)
-
-
 # Interim summary:
 # bimodal_normStart_i250_s05_t700 gives a good looking bimodal, but with positive skewness
-# I will now use it as a starter and try to get negative skew
-
+# I will now use it as a starter and try to get negative skew.
 
 # bimodal_custom_i050_s05_t650
+set.seed(1)
 bimodal_custom_i050_s05_t650 <- simulateAnnealing(
   startData    = bimodal_normStart_i250_s05_t700,
   fitFunction  = bimodality_coefficient,
@@ -191,24 +153,24 @@ bimodal_custom_i050_s05_t650 <- simulateAnnealing(
   targetSd     = targetSd,
   targetPValue = targetPValue
 )
-makeCloud(bimodal_custom_i050_s05_t650, -0.8, 1.25)
+makeCloud(bimodal_custom_i050_s05_t650, -1.1, 1.1)
 bimodality_coefficient(bimodal_custom_i050_s05_t650)
 skewness(bimodal_custom_i050_s05_t650)
 
-# Lets compare current two contenders with rest seedData and normalData
-makeCloud(normalData, -0.8, 1.25)
-makeCloud(v1skewedData, -0.8, 1.25)
-makeCloud(bimodal_normStart_i250_s05_t700, -0.8, 1.25)
-makeCloud(bimodal_custom_i050_s05_t650, -0.8, 1.25)
+# This looks great!
+# However, the densities are a bit cut-off.
+# Thus, some manual fine-tuning just like for skewedData
 
 
-# # Lets keep the second contender with negative skew for now.
-# write.csv(bimodal_custom_i050_s05_t650, "./quartetData/v1bimodalData.csv")  # Commented out just for safety
-v1bimodalData <- read.csv("./quartetData/v1bimodalData.csv")
-v1bimodalData <- as.vector(v1bimodalData[ , 2])
+# # # # # # # Storage
+# # # Lets keep the second contender with negative skew for now.
+# # write.csv(bimodal_custom_i050_s05_t650, "./quartetData/v1bimodalData.csv")  # Commented out just for safety
+# v1bimodalData <- read.csv("./quartetData/v1bimodalData.csv")
+# v1bimodalData <- as.vector(v1bimodalData[ , 2])
+# identical(v1bimodalData, bimodal_custom_i050_s05_t650)
 
 
-# III: Outliers ----
+# IV: Outliers ----
 
 # Lets look at the current quartet
 makeCloud(normalData, -1, 1.075)
@@ -239,16 +201,17 @@ outlierLoss <- function(inputData) {
 sortedNormalData <- normalData[order(normalData)]  # Also order it, to get correct loss in very first iteration.
 outlierLoss(sortedNormalData)
 
-
+set.seed(1)
 v1Outlier <- simulateAnnealing(
-  startData    = sortedNormalData,
-  fitFunction  = outlierLoss,
-  fitTarget    = 0,
-  maxIter      = 200000,
-  shake        = 0.05,
-  targetMean   = targetMean,
-  targetSd     = targetSd,
-  targetPValue = targetPValue
+  startData         = sortedNormalData,
+  fitFunction       = outlierLoss,
+  fitTarget         = 0,
+  maxIter           = 200000,
+  shake             = 0.05,
+  targetMean        = targetMean,
+  targetSd          = targetSd,
+  targetPValue      = targetPValue,
+  orderAfterPerturb = TRUE
 )
 makeCloud(v1Outlier, -1, 1.075)  # That looks good!
 outlierLoss(v1Outlier)

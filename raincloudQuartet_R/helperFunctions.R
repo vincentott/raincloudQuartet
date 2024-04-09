@@ -56,7 +56,8 @@ getP <- function(inputVector, mu = 0) {
 
 # simulateAnnealing(); see Matejka & Fitzmaurice (2017) ----
 simulateAnnealing <- function(
-    startData, fitFunction, fitTarget, maxIter = 20000, shake = 0.50, targetMean, targetSd, targetPValue
+    startData, fitFunction, fitTarget, maxIter = 20000, shake = 0.50, targetMean, targetSd, targetPValue,
+    orderAfterPerturb = FALSE
 ) {
 
   startTime <- Sys.time()
@@ -69,7 +70,7 @@ simulateAnnealing <- function(
     if (i %% 50000 == 0) {
       print(gettextf("Iteration %s with temperature %s", i, currentTemperature))
     }
-    testData           <- perturb(currentData, fitFunction, fitTarget, currentTemperature, shake)
+    testData           <- perturb(currentData, fitFunction, fitTarget, currentTemperature, shake, orderAfterPerturb)
     if (isErrorOk(testData, targetMean, targetSd, targetPValue)) {
       currentData <- testData
     }
@@ -108,7 +109,7 @@ sCurve <- function(x) {
 
 
 # perturb(); see Matejka & Fitzmaurice (2017) ----
-perturb <- function(currentData, fitFunction, fitTarget, currentTemperature, shake) {
+perturb <- function(currentData, fitFunction, fitTarget, currentTemperature, shake, orderAfterPerturb) {
 
   currentLoss  <- abs(fitTarget - fitFunction(currentData))
 
@@ -117,7 +118,7 @@ perturb <- function(currentData, fitFunction, fitTarget, currentTemperature, sha
 
     randomIndices <- sample(1:length(perturbedData), 6)
     perturbedData[randomIndices] <- perturbedData[randomIndices] + rnorm(6) * shake
-    perturbedData <- perturbedData[order(perturbedData)]
+    if (orderAfterPerturb) perturbedData <- perturbedData[order(perturbedData)]
     perturbedData <- round(perturbedData, 4)
     perturbedLoss <- abs(fitTarget - fitFunction(perturbedData))
 
