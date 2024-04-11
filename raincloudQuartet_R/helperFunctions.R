@@ -11,7 +11,7 @@ library(ggrain)
 
 
 # makeCloud() ----
-makeCloud <- function(inputVector, axisMin = -2, axisMax = 2) {
+makeCloud <- function(inputVector, axisMin = -1.1, axisMax = 1.1) {
   title     <- deparse(substitute(inputVector))
   df        <- as.data.frame(inputVector)
   meanValue <- mean(inputVector)

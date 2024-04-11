@@ -108,6 +108,7 @@ getP(wipSkewedData)
 # write.csv(wipSkewedData, "./quartetData/skewedData.csv")  # Commented out just for safety
 skewedData <- read.csv("./quartetData/skewedData.csv")
 skewedData <- as.vector(skewedData[ , 2])
+makeCloud(skewedData)
 
 
 
@@ -244,7 +245,7 @@ getP(upperWipBimodalData)
 # write.csv(upperWipBimodalData, "./quartetData/bimodalData.csv")  # Commented out just for safety
 bimodalData <- read.csv("./quartetData/bimodalData.csv")
 bimodalData <- as.vector(bimodalData[ , 2])
-
+makeCloud(bimodalData)
 
 
 
@@ -252,9 +253,9 @@ bimodalData <- as.vector(bimodalData[ , 2])
 # IV: Outliers ----
 
 # Lets look at the current quartet
-makeCloud(normalData, -1.1, 1.1)
-makeCloud(skewedData, -1.1, 1.1)
-makeCloud(bimodalData, -1.1, 1.1)
+makeCloud(normalData)
+makeCloud(skewedData)
+makeCloud(bimodalData)
 
 
 # Define outlier loss
@@ -281,7 +282,7 @@ outlierLoss(sortedNormalData)
 
 # Execute all of the following code until STOP STOP STOP
 set.seed(1)
-wipOutlierData <- simulateAnnealing(
+v1OutlierData <- simulateAnnealing(
   startData         = sortedNormalData,
   fitFunction       = outlierLoss,
   fitTarget         = 0,
@@ -292,10 +293,10 @@ wipOutlierData <- simulateAnnealing(
   targetPValue      = targetPValue,
   orderAfterPerturb = TRUE
 )
-makeCloud(wipOutlierData, -1.1, 1.1)
-outlierLoss(wipOutlierData)
-finalOutlierData <- simulateAnnealing(   # I forgot to set.seed() - and found that this looks nicer.
-  startData         = sortedNormalData,  # So, this will be the final version.
+makeCloud(v1OutlierData)
+outlierLoss(v1OutlierData)
+v2OutlierData <- simulateAnnealing(      # I forgot to set.seed() - and found that this looks nicer.
+  startData         = sortedNormalData,  # Thus, requires v1 to be run first (incl. set.seed(1) before v1)
   fitFunction       = outlierLoss,
   fitTarget         = 0,
   maxIter           = 200000,
@@ -306,44 +307,42 @@ finalOutlierData <- simulateAnnealing(   # I forgot to set.seed() - and found th
   orderAfterPerturb = TRUE
 )
 # STOP STOP STOP
-makeCloud(finalOutlierData, -1.1, 1.1)
-outlierLoss(finalOutlierData)
+makeCloud(v2OutlierData)
+outlierLoss(v2OutlierData)
 
 
-# write.csv(v1Outlier, "./quartetData/v1outlierData.csv")  # Commented out just for safety
-v1outlierData <- read.csv("./quartetData/v1outlierData.csv")
-v1outlierData <- as.vector(v1outlierData[ , 2])
-makeCloud(v1outlierData, -1.1, 1.1)
+# write.csv(v2OutlierData, "./quartetData/outlierData.csv")  # Commented out just for safety
+outlierData <- read.csv("./quartetData/outlierData.csv")
+outlierData <- as.vector(outlierData[ , 2])
+makeCloud(outlierData)
 
 
 
 # The Raincloud Quartet ----
-axisMin = -1
-axisMax = 1.075
-makeCloud(normalData, axisMin, axisMax)
-makeCloud(v1skewedData, axisMin, axisMax)
-makeCloud(v1bimodalData, axisMin, axisMax)
-makeCloud(v1outlierData, axisMin, axisMax)
+makeCloud(normalData)
+makeCloud(skewedData)
+makeCloud(bimodalData)
+makeCloud(outlierData)
 
-v1RaincloudQuartet <- data.frame(
+raincloudQuartet <- data.frame(
 
   distribution = c(
     rep("normal",  111),
-    rep("skewed",  111),
     rep("bimodal", 111),
+    rep("skewed",  111),
     rep("outlier", 111)
   ),
 
   data <- c(
     normalData,
-    v1skewedData,
-    v1bimodalData,
-    v1outlierData
+    bimodalData,
+    skewedData,
+    outlierData
   )
 
 )
-colnames(v1RaincloudQuartet)[2] <- "data"
-v1RaincloudQuartet$distribution <- as.factor(v1RaincloudQuartet$distribution)
+colnames(raincloudQuartet)[2] <- "data"
+raincloudQuartet$distribution <- as.factor(raincloudQuartet$distribution)
 
-# write.csv(v1RaincloudQuartet, "./quartetData/v1RaincloudQuartet.csv")
+# write.csv(raincloudQuartet, "./quartetData/raincloudQuartet.csv")  # Commented out just for safety
 
