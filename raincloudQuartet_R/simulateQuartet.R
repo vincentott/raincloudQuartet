@@ -346,3 +346,9 @@ raincloudQuartet$distribution <- as.factor(raincloudQuartet$distribution)
 
 # write.csv(raincloudQuartet, "./quartetData/raincloudQuartet.csv")  # Commented out just for safety
 
+
+# Get t-statistic
+t.test(normalData, alternative = "greater", mu = 0)$statistic
+t.test(bimodalData, alternative = "greater", mu = 0)$statistic
+t.test(skewedData, alternative = "greater", mu = 0)$statistic  # fix skewed data
+t.test(outlierData, alternative = "greater", mu = 0)$statistic
