@@ -69,7 +69,7 @@ v1SkewedData <- simulateAnnealing(
 )
 makeCloud(normalData, -1.1, 1.1)
 makeCloud(v1SkewedData, -1.1, 1.1)  # Looks good!
-skewness(v1SkewedData, -1.1, 1.1)
+skewness(v1SkewedData)
 
 # However, the left density is a bit cut-off.
 # Thus, some manual tuning.
@@ -103,12 +103,22 @@ makeCloud(wipSkewedData, -1.1, 1.1)
 isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
 inspectStats(wipSkewedData)
 getP(wipSkewedData)
+t.test(wipSkewedData, alternative = "greater", mu = 0)$statistic  # Should be 1.67 though, so we continue fine tuning
+
+fine <- round(t.test(wipSkewedData, alternative = "greater", mu = 0)$statistic, 2) == 1.67
+while (fine == FALSE) {
+  wipSkewedData[20] <- wipSkewedData[20] + 0.0001
+  fine <- round(t.test(wipSkewedData, alternative = "greater", mu = 0)$statistic, 2) == 1.67
+}
+print(fine)
+isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
 
 
 # write.csv(wipSkewedData, "./quartetData/skewedData.csv")  # Commented out just for safety
 skewedData <- read.csv("./quartetData/skewedData.csv")
 skewedData <- as.vector(skewedData[ , 2])
 makeCloud(skewedData)
+
 
 
 
@@ -350,5 +360,5 @@ raincloudQuartet$distribution <- as.factor(raincloudQuartet$distribution)
 # Get t-statistic
 t.test(normalData, alternative = "greater", mu = 0)$statistic
 t.test(bimodalData, alternative = "greater", mu = 0)$statistic
-t.test(skewedData, alternative = "greater", mu = 0)$statistic  # fix skewed data
+t.test(skewedData, alternative = "greater", mu = 0)$statistic
 t.test(outlierData, alternative = "greater", mu = 0)$statistic
