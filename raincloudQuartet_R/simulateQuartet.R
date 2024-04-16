@@ -49,6 +49,14 @@ makeCloud(normalData)
 inspectStats(normalData)
 getP(normalData)
 
+# IMPORTANT REPRODUCIBILITY NOTE:
+# normCurrent and its stored version are not identical
+identical(normCurrent, normalData)
+# but this is just because the way R created the csv file.
+# You will find that they are virtually identical
+sum(round(abs(normalData - normCurrent), 10))
+# In the following, I proceed with normalData, as stored.
+
 
 
 # II: Right skewed distribution ----
@@ -119,6 +127,13 @@ skewedData <- read.csv("./quartetData/skewedData.csv")
 skewedData <- as.vector(skewedData[ , 2])
 makeCloud(skewedData)
 
+# IMPORTANT REPRODUCIBILITY NOTE:
+# wipSkewedData and its stored version are not identical
+identical(wipSkewedData, skewedData)
+# but this is just because the way R created the csv file.
+# You will find that they are virtually identical
+sum(round(abs(wipSkewedData - skewedData), 10))
+# In the following, I proceed with skewedData, as stored.
 
 
 
@@ -127,7 +142,7 @@ makeCloud(skewedData)
 # further: bimodality coeffient makes an easy fitTarget in simulateAnnealing(), so lets go with that first
 
 makeCloud(seedData)
-bimodality_coefficient(seedData)  # 0.507
+bimodality_coefficient(seedData)    # 0.507
 bimodality_coefficient(normalData)  # 0.27
 # pfister2013: > .555 indicates bimodality
 
@@ -257,6 +272,13 @@ bimodalData <- read.csv("./quartetData/bimodalData.csv")
 bimodalData <- as.vector(bimodalData[ , 2])
 makeCloud(bimodalData)
 
+# IMPORTANT REPRODUCIBILITY NOTE:
+# upperWipBimodalData and its stored version are not identical
+identical(upperWipBimodalData, bimodalData)
+# but this is just because the way R created the csv file.
+# You will find that they are virtually identical
+sum(round(abs(upperWipBimodalData - bimodalData), 10))
+# In the following, I proceed with bimodalData, as stored.
 
 
 
@@ -305,8 +327,8 @@ v1OutlierData <- simulateAnnealing(
 )
 makeCloud(v1OutlierData)
 outlierLoss(v1OutlierData)
-v2OutlierData <- simulateAnnealing(      # I forgot to set.seed() - and found that this looks nicer.
-  startData         = sortedNormalData,  # Thus, requires v1 to be run first (incl. set.seed(1) before v1)
+v2OutlierData <- simulateAnnealing(      # I forgot to set.seed() - but found that this looks nicer.
+  startData         = sortedNormalData,  # Thus, requires v1OutlierData to be simulated first (incl. set.seed(1) before v1)
   fitFunction       = outlierLoss,
   fitTarget         = 0,
   maxIter           = 200000,
@@ -326,13 +348,25 @@ outlierData <- read.csv("./quartetData/outlierData.csv")
 outlierData <- as.vector(outlierData[ , 2])
 makeCloud(outlierData)
 
+# Reproducibility Note:
+# Unlike the other normalData, skewedData, and bimodalData,
+# v2OutlierData and its stored version, outlierData, are identical.
+identical(v2OutlierData, outlierData)
+
 
 
 # The Raincloud Quartet ----
 makeCloud(normalData)
-makeCloud(skewedData)
 makeCloud(bimodalData)
+makeCloud(skewedData)
 makeCloud(outlierData)
+
+# Check t-statistic
+round(t.test(normalData, alternative = "greater", mu = 0)$statistic, 2)
+round(t.test(bimodalData, alternative = "greater", mu = 0)$statistic, 2)
+round(t.test(skewedData, alternative = "greater", mu = 0)$statistic, 2)
+round(t.test(outlierData, alternative = "greater", mu = 0)$statistic, 2)
+
 
 raincloudQuartet <- data.frame(
 
@@ -356,9 +390,7 @@ raincloudQuartet$distribution <- as.factor(raincloudQuartet$distribution)
 
 # write.csv(raincloudQuartet, "./quartetData/raincloudQuartet.csv")  # Commented out just for safety
 
+# Reproducible?
+storedQuartet <- read.csv("./quartetData/raincloudQuartet.csv")
+identical(raincloudQuartet$data, storedQuartet$data)
 
-# Get t-statistic
-t.test(normalData, alternative = "greater", mu = 0)$statistic
-t.test(bimodalData, alternative = "greater", mu = 0)$statistic
-t.test(skewedData, alternative = "greater", mu = 0)$statistic
-t.test(outlierData, alternative = "greater", mu = 0)$statistic
