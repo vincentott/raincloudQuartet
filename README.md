@@ -1,2 +1,2 @@
 # raincloudQuartet
-Same stats, different clouds
+Why you should use raincloud plots and how JASP makes that easy.
