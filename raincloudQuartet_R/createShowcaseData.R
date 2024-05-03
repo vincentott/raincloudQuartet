@@ -92,5 +92,56 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 
 # 2x2 Design ----
 
+# factorT is within subjects:  levels 1 & 2
+# factorG is between subjects: levels X & Y
+
+sampleSizePerGroup <- 40  # how many subjects are in each of the two levels of factorT?
+
+dfT1 <- data.frame(
+  id = c(1:40, 501:540),
+  factorT = c(rep("1", sampleSizePerGroup), rep("1", sampleSizePerGroup)),
+  factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
+)
+
+set.seed(1)
+dependentVariableT1 <- c(
+  rnorm(mean = 580, sd = 75, n = sampleSizePerGroup),
+  rnorm(mean = 265, sd = 75, n = sampleSizePerGroup)
+)
+
+dfT1$dependentVariable <- dependentVariableT1
+
+set.seed(2)
+dependentVariableT2 <- dependentVariableT1 + c(
+  rnorm(mean = -170, sd = 25, n = sampleSizePerGroup),
+  rnorm(mean =  180, sd = 25, n = sampleSizePerGroup)
+)
+
+dfT2 <- data.frame(
+  id = c(1:40, 501:540),
+  factorT = c(rep("2", sampleSizePerGroup), rep("2", sampleSizePerGroup)),
+  factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
+)
+
+dfT2$dependentVariable <- dependentVariableT2
+
+
+# Combine T1 and T2 measurements
+design2x2 <- rbind(dfT1, dfT2)
+
+# Visualize
+ggplot(design2x2, aes(factorT, dependentVariable, fill = factorG)) +
+  geom_rain(
+    alpha = .5,
+    rain.side = "f2x2",
+    id.long.var = "id"
+  ) +
+  theme_classic() +
+  scale_fill_brewer(palette = 'Dark2')
+
+
+# write.csv(design2x2, "./showcaseData/design2x2.csv")  # Commented out just for safety
+
+
 
 
