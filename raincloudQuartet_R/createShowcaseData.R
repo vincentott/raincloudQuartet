@@ -147,4 +147,56 @@ ggplot(design2x2, aes(factorT, dependentVariable, fill = factorG)) +
 
 
 
+# 3x2 Design ----
+
+# fully between design
+
+# factorM is for the three manipulations
+# factorG are the two groups
+
+sampleSizePerGroup <- 40
+
+set.seed(1)
+design3x2 <- data.frame(
+
+  factorM = c(
+    rep(rep("A", sampleSizePerGroup), 2),  # There are two groups (factorG), so outer rep() is 2
+    rep(rep("B", sampleSizePerGroup), 2),
+    rep(rep("C", sampleSizePerGroup), 2)
+  ),
+
+  factorG = c(
+    rep(
+      c(rep("experimental", sampleSizePerGroup), rep("control", sampleSizePerGroup)),
+      3
+    )
+  ),
+
+  dependentVariable = c(
+
+    rnorm(sampleSizePerGroup, .70, .10),  # Both groups are equal in first manipulation
+    rnorm(sampleSizePerGroup, .70, .10),
+
+    rnorm(sampleSizePerGroup, .45, .10),  # Both groups are equal, but lower in second
+    rnorm(sampleSizePerGroup, .45, .10),
+
+    rnorm(sampleSizePerGroup, .70, .10),  # Groups differ
+    rnorm(sampleSizePerGroup, .45, .10)
+
+  )
+)
+
+# Visualize
+ggplot(design3x2, aes(factorM, dependentVariable, fill = factorG)) +
+  geom_rain(
+    alpha = .5,
+    rain.side = "f",
+  ) +
+  theme_classic() +
+  scale_fill_brewer(palette = 'Dark2')
+
+
+# write.csv(design3x2, "./showcaseData/design3x2.csv")  # Commented out just for safety
+
+
 
