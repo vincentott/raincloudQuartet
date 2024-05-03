@@ -74,7 +74,7 @@ dvLevelC <- dvLevelA + c(
 
 design3x1$dependentVariable <- c(dvLevelA, dvLevelB, dvLevelC)
 
-design3x1$dependentVariable <- round(design3x1$dependentVariable, 2)  # To showcase effect of jitter
+design3x1$dependentVariable <- round(design3x1$dependentVariable, 2)  # Round to percent (2 decimal places)
 
 ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
   geom_rain(
@@ -98,10 +98,10 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 # factorT is within subjects:  levels 1 & 2
 # factorG is between subjects: levels X & Y
 
-sampleSizePerGroup <- 40  # how many subjects are in each of the two levels of factorT?
+sampleSizePerGroup <- 65  # how many subjects are in each of the two levels of factorT?
 
 dfT1 <- data.frame(
-  id = c(1:40, 501:540),
+  id = c(1:65, 501:565),
   factorT = c(rep("1", sampleSizePerGroup), rep("1", sampleSizePerGroup)),
   factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
 )
@@ -109,24 +109,24 @@ dfT1 <- data.frame(
 set.seed(1)
 dependentVariableT1 <- c(
   rnorm(mean = 580, sd = 75, n = sampleSizePerGroup),
-  rnorm(mean = 265, sd = 75, n = sampleSizePerGroup)
+  rnorm(mean = 215, sd = 75, n = sampleSizePerGroup)
 )
 
-dfT1$dependentVariable <- dependentVariableT1
+dfT1$dependentVariable <- round(dependentVariableT1 / 10) * 10  # Round to neareest 10
 
 set.seed(2)
 dependentVariableT2 <- dependentVariableT1 + c(
-  rnorm(mean = -170, sd = 25, n = sampleSizePerGroup),
-  rnorm(mean =  180, sd = 25, n = sampleSizePerGroup)
+  rnorm(mean = -170, sd = 55, n = sampleSizePerGroup),
+  rnorm(mean =  260, sd = 55, n = sampleSizePerGroup)
 )
 
 dfT2 <- data.frame(
-  id = c(1:40, 501:540),
+  id = c(1:65, 501:565),
   factorT = c(rep("2", sampleSizePerGroup), rep("2", sampleSizePerGroup)),
   factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
 )
 
-dfT2$dependentVariable <- dependentVariableT2
+dfT2$dependentVariable <- round(dependentVariableT2 / 10) * 10
 
 
 # Combine T1 and T2 measurements
