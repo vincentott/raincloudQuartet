@@ -74,6 +74,8 @@ dvLevelC <- dvLevelA + c(
 
 design3x1$dependentVariable <- c(dvLevelA, dvLevelB, dvLevelC)
 
+design3x1$dependentVariable <- round(design3x1$dependentVariable, 2)  # To showcase effect of jitter
+
 ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
   geom_rain(
     alpha = .5,
@@ -84,6 +86,7 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
   scale_fill_brewer(palette = 'Dark2') +
   guides(fill = 'none') +
   scale_color_viridis_c(option =  "A")
+
 
 
 # write.csv(design3x1, "./showcaseData/design3x1.csv")  # Commented out just for safety
