@@ -132,6 +132,7 @@ dataCollapsed$plotType <- factor(
 )
 
 # Visualize Proportions
+# Exported as pdf with size: 4.38 x 4.86 inches
 ggplot(dataCollapsed, aes(x = 1, y = amount, fill = plotType)) +
   geom_bar(position = "fill", stat = "identity") +
   theme_classic() +
@@ -141,7 +142,8 @@ ggplot(dataCollapsed, aes(x = 1, y = amount, fill = plotType)) +
       "#9692ff", "#4a6ac3",
       "#ff9fb1", "#7c1158"
     )
-  )
+  ) +
+  ylab("Percent %")
 
 # Calculate proportions
 nPlotted <- sum(dataCollapsed$amount)
@@ -149,3 +151,13 @@ dataCollapsed$perc <- round(dataCollapsed$amount / nPlotted, 2)
 dataCollapsed
 sum(dataCollapsed$perc)  # Rounding successful
 
+
+
+# Percentages that we report ----
+
+round(105 / 133, 2) * 100  # 79% applicable cases out of 133 published brief reports
+
+round(81 / 105, 2) * 100   # 77% of the applicable cases reported tTest or ANOVA
+round(24 / 105, 2) * 100   # 23% reported more complex models (such as linear mixed effects)
+
+round(94 / 105, 2) * 100   # 90 % of the applicable cases plotted their data
