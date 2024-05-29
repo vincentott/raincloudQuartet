@@ -101,7 +101,7 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 sampleSizePerGroup <- 65  # how many subjects are in each of the two levels of factorT?
 
 dfT1 <- data.frame(
-  id = c(1:65, 501:565),
+  id = c(1:130),
   factorT = c(rep("1", sampleSizePerGroup), rep("1", sampleSizePerGroup)),
   factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
 )
@@ -112,7 +112,7 @@ dependentVariableT1 <- c(
   rnorm(mean = 215, sd = 75, n = sampleSizePerGroup)
 )
 
-dfT1$dependentVariable <- round(dependentVariableT1 / 10) * 10  # Round to neareest 10
+dfT1$dependentVariable <- round(dependentVariableT1 / 10) * 10  # Round to nearest 10
 
 set.seed(2)
 dependentVariableT2 <- dependentVariableT1 + c(
@@ -121,7 +121,7 @@ dependentVariableT2 <- dependentVariableT1 + c(
 )
 
 dfT2 <- data.frame(
-  id = c(1:65, 501:565),
+  id = c(1:130),
   factorT = c(rep("2", sampleSizePerGroup), rep("2", sampleSizePerGroup)),
   factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
 )
