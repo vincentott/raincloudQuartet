@@ -93,47 +93,76 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 
 
 
-# 2x2 Design ----
+# 2x2 Design: irisFertilizer ----
 
-# factorT is within subjects:  levels 1 & 2
-# factorG is between subjects: levels X & Y
+# For this we can use the irisFertilizer data set from the ggrain vignette: https://www.njudd.com/raincloud-ggrain/
+set.seed(42)  # The magic number
+iris_subset <- iris[iris$Species %in% c('versicolor', 'virginica'),]
 
-sampleSizePerGroup <- 65  # how many subjects are in each of the two levels of factorT?
-
-dfT1 <- data.frame(
-  id = c(1:130),
-  factorT = c(rep("1", sampleSizePerGroup), rep("1", sampleSizePerGroup)),
-  factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
+iris.long <- cbind(
+  rbind(iris_subset, iris_subset, iris_subset),
+  data.frame(
+    time = c(rep("t1", dim(iris_subset)[1]), rep("t2", dim(iris_subset)[1]), rep("t3", dim(iris_subset)[1])),
+    id = c(rep(1:dim(iris_subset)[1]), rep(1:dim(iris_subset)[1]), rep(1:dim(iris_subset)[1]))
+  )
 )
 
-set.seed(1)
-dependentVariableT1 <- c(
-  rnorm(mean = 580, sd = 75, n = sampleSizePerGroup),
-  rnorm(mean = 215, sd = 75, n = sampleSizePerGroup)
-)
+# adding .5 and some noise to the versicolor species in t2
+iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t2"] <-
+  iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t2"] +
+  .5 +
+  rnorm(length(iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t2"]), sd = .2)
 
-dfT1$dependentVariable <- round(dependentVariableT1 / 10) * 10  # Round to nearest 10
+# adding .8 and some noise to the versicolor species in t3
+iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t3"] <-
+  iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t3"] +
+  .8 +
+  rnorm(length(iris.long$Sepal.Width[iris.long$Species == 'versicolor' & iris.long$time == "t3"]), sd = .2)
 
-set.seed(2)
-dependentVariableT2 <- dependentVariableT1 + c(
-  rnorm(mean = -170, sd = 55, n = sampleSizePerGroup),
-  rnorm(mean =  260, sd = 55, n = sampleSizePerGroup)
-)
+# now we subtract -.2 and some noise to the virginica species
+iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t2"] <-
+  iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t2"] -
+  .2 +
+  rnorm(length(iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t2"]), sd = .2)
 
-dfT2 <- data.frame(
-  id = c(1:130),
-  factorT = c(rep("2", sampleSizePerGroup), rep("2", sampleSizePerGroup)),
-  factorG = c(rep("X", sampleSizePerGroup), rep("Y", sampleSizePerGroup))
-)
+# now we subtract -.4 and some noise to the virginica species
+iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t3"] <-
+  iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t3"] -
+  .4 +
+  rnorm(length(iris.long$Sepal.Width[iris.long$Species == 'virginica' & iris.long$time == "t3"]), sd = .2)
 
-dfT2$dependentVariable <- round(dependentVariableT2 / 10) * 10
+iris.long$Sepal.Width <- round(iris.long$Sepal.Width, 1) # rounding Sepal.Width so t2 data is on the same resolution
+iris.long$time <- factor(iris.long$time, levels = c('t1', 't2', 't3'))
+# End of ggrain vignette code
 
 
-# Combine T1 and T2 measurements
-design2x2 <- rbind(dfT1, dfT2)
+# Clean up for showcase
+irisFertilizer <- iris.long
+
+irisFertilizer$sepalWidth <- irisFertilizer$Sepal.Width  # camelCase to avoid bugs due to "." character
+
+irisFertilizer <- irisFertilizer %>% select(id, time, Species, sepalWidth)
+
+irisFertilizer <- irisFertilizer %>% filter(time != "t2")  # Simplify to 2x2
+
+
+# Change one slope to stand out idiosyncratically:
+# Third highest virginica at t3 should be a bit higher
+# Lets find it first in the dataframe
+irisFertilizer %>%
+  filter(time == "t3", Species == "virginica") %>%
+  select(id, sepalWidth) %>%
+  arrange(desc(sepalWidth)) %>%
+  head(3)
+
+# id == 99; Should go from current 3.4 to 3.6
+irisFertilizer[irisFertilizer$id == 99 & irisFertilizer$time == "t3", "sepalWidth"] <- 3.6
+
+nrow(irisFertilizer)
+
 
 # Visualize
-ggplot(design2x2, aes(factorT, dependentVariable, fill = factorG)) +
+ggplot(irisFertilizer, aes(time, sepalWidth, fill = Species)) +
   geom_rain(
     alpha = .5,
     rain.side = "f2x2",
@@ -143,7 +172,7 @@ ggplot(design2x2, aes(factorT, dependentVariable, fill = factorG)) +
   scale_fill_brewer(palette = 'Dark2')
 
 
-# write.csv(design2x2, "./showcaseData/design2x2.csv")  # Commented out just for safety
+# write.csv(irisFertilizer, "./showcaseData/design2x2.csv")  # Commented out just for safety
 
 
 
