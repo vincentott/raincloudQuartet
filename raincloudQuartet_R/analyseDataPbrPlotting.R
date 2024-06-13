@@ -128,20 +128,26 @@ dataCollapsed <- dataApply %>% filter(didPlot == "yes") %>% group_by(plotType) %
 dataCollapsed
 dataCollapsed$plotType <- factor(
   dataCollapsed$plotType,
-  levels = c("raincloud", "similarToRaincloud", "linePlot", "pointShowsMean", "boxPlot", "barPlot")
+  levels = c("barPlot", "pointShowsMean", "boxPlot", "linePlot", "similarToRaincloud", "raincloud")
 )
 
 # Visualize Proportions
+# Exported as pdf with size: 4.38 x 4.86 inches
 ggplot(dataCollapsed, aes(x = 1, y = amount, fill = plotType)) +
   geom_bar(position = "fill", stat = "identity") +
   theme_classic() +
   scale_fill_manual(
     values = c(
-      "#53c12c", "#94e2d9",
-      "#9692ff", "#4a6ac3",
-      "#ff9fb1", "#7c1158"
+      "#BA0057", "#FB8B00",
+      "#424342", "#C2AFF0",
+      "#00A9E6", "#00BA63"
     )
-  )
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 1, by = 0.20),
+    labels = scales::percent_format(accuracy = 1)
+  ) +
+  ylab("Percent")
 
 # Calculate proportions
 nPlotted <- sum(dataCollapsed$amount)
@@ -149,3 +155,13 @@ dataCollapsed$perc <- round(dataCollapsed$amount / nPlotted, 2)
 dataCollapsed
 sum(dataCollapsed$perc)  # Rounding successful
 
+
+
+# Percentages that we report ----
+
+round(105 / 133, 2) * 100  # 79% applicable cases out of 133 published brief reports
+
+round(81 / 105, 2) * 100   # 77% of the applicable cases reported tTest or ANOVA
+round(24 / 105, 2) * 100   # 23% reported more complex models (such as linear mixed effects)
+
+round(94 / 105, 2) * 100   # 90 % of the applicable cases plotted their data
