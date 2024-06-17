@@ -19,6 +19,7 @@ library("ggplot2")
 # Load data ----
 dataPlotting <- read_excel("dataPbrPlotting.xlsx")
 
+dataPlotting <- dataPlotting %>% filter(year == 2023)  # Safeguard because of incoming 2013 data
 
 
 # Relevant Reports ----
