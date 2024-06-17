@@ -46,108 +46,108 @@ dataApply %>% group_by(tTestANOVA) %>% summarize(amount = n())
 
 
 
-# Reports with tTest or ANOVA: N = 81 ----
-# First, lets look at the 81 reports that had a tTest or ANOVA.
-dataTTestAnova <- dataApply %>% filter(tTestANOVA == "yes")
-
-dataTTestAnova %>% group_by(didPlot) %>% summarize(amount = n())
-# 72 reports also plotted their data.
-# 9 did not.
-
-dataTTestAnova %>% filter(didPlot == "no") %>% group_by(ifNotPlotTable) %>% summarize(amount = n())
-# Of those 9 reports who did not plot, 4 reported the results in a table and 5 did not.
-
-dataTTestAnovaDidPlot <- dataTTestAnova %>% filter(didPlot == "yes") %>% group_by(plotType) %>% summarize(amount = n())
-dataTTestAnovaDidPlot
-
-dataTTestAnovaDidPlot$plotType <- factor(
-  dataTTestAnovaDidPlot$plotType,
-  levels = c("raincloud", "similarToRaincloud", "linePlot", "pointShowsMean", "barPlot")
-)
-
-# Visualize
-ggplot(dataTTestAnovaDidPlot, aes(x = 1, y = amount, fill = plotType)) +
-  geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("forestgreen", "lightgreen", "purple", "#F9DDB1", "orange"))
-
-
-
-
-# Special Cases: N = 24 ----
-dataSpecial <- dataApply %>% filter(tTestANOVA == "no")
-dataSpecial %>% group_by(didPlot) %>% summarize(amount = n())
-# 22 of the special cases plotted their data.
-# 2 did not.
-
-dataSpecial %>% filter(didPlot == "no") %>% group_by(ifNotPlotTable) %>% summarize(amount = n())
-# Both of these reports that did not plot, still reported the results in a table.
-
-
-dataSpecialDidPlot <- dataSpecial %>% filter(didPlot == "yes") %>% group_by(plotType) %>% summarize(amount = n())
-dataSpecialDidPlot
-
-dataSpecialDidPlot$plotType <- factor(
-  dataSpecialDidPlot$plotType,
-  levels = c("raincloud", "similarToRaincloud", "boxPlot", "barPlot")
-)
-
-# Visualize
-ggplot(dataSpecialDidPlot, aes(x = 1, y = amount, fill = plotType)) +
-  geom_bar(position = "stack", stat = "identity") +
-  scale_fill_manual(values = c("forestgreen", "lightgreen", "lightblue", "orange"))
+# # Reports with tTest or ANOVA: N = 81 ----
+# # First, lets look at the 81 reports that had a tTest or ANOVA.
+# dataTTestAnova <- dataApply %>% filter(tTestANOVA == "yes")
+#
+# dataTTestAnova %>% group_by(didPlot) %>% summarize(amount = n())
+# # 72 reports also plotted their data.
+# # 9 did not.
+#
+# dataTTestAnova %>% filter(didPlot == "no") %>% group_by(ifNotPlotTable) %>% summarize(amount = n())
+# # Of those 9 reports who did not plot, 4 reported the results in a table and 5 did not.
+#
+# dataTTestAnovaDidPlot <- dataTTestAnova %>% filter(didPlot == "yes") %>% group_by(plotType) %>% summarize(amount = n())
+# dataTTestAnovaDidPlot
+#
+# dataTTestAnovaDidPlot$plotType <- factor(
+#   dataTTestAnovaDidPlot$plotType,
+#   levels = c("raincloud", "similarToRaincloud", "linePlot", "pointShowsMean", "barPlot")
+# )
+#
+# # Visualize
+# ggplot(dataTTestAnovaDidPlot, aes(x = 1, y = amount, fill = plotType)) +
+#   geom_bar(position = "stack", stat = "identity") +
+#   scale_fill_manual(values = c("forestgreen", "lightgreen", "purple", "#F9DDB1", "orange"))
 
 
 
-# Visualize tTestANOVA and Special Cases separately ----
-dataVisualize <- dataApply %>% filter(didPlot == "yes") %>% group_by(tTestANOVA, plotType) %>% summarize(amount = n())
-dataVisualize
 
-dataVisualize$tTestANOVA <- factor(dataVisualize$tTestANOVA, levels = c("yes", "no"))
+# # Special Cases: N = 24 ----
+# dataSpecial <- dataApply %>% filter(tTestANOVA == "no")
+# dataSpecial %>% group_by(didPlot) %>% summarize(amount = n())
+# # 22 of the special cases plotted their data.
+# # 2 did not.
+#
+# dataSpecial %>% filter(didPlot == "no") %>% group_by(ifNotPlotTable) %>% summarize(amount = n())
+# # Both of these reports that did not plot, still reported the results in a table.
+#
+#
+# dataSpecialDidPlot <- dataSpecial %>% filter(didPlot == "yes") %>% group_by(plotType) %>% summarize(amount = n())
+# dataSpecialDidPlot
+#
+# dataSpecialDidPlot$plotType <- factor(
+#   dataSpecialDidPlot$plotType,
+#   levels = c("raincloud", "similarToRaincloud", "boxPlot", "barPlot")
+# )
+#
+# # Visualize
+# ggplot(dataSpecialDidPlot, aes(x = 1, y = amount, fill = plotType)) +
+#   geom_bar(position = "stack", stat = "identity") +
+#   scale_fill_manual(values = c("forestgreen", "lightgreen", "lightblue", "orange"))
 
-dataVisualize$plotType <- factor(
-  dataVisualize$plotType,
-  levels = c("raincloud", "similarToRaincloud", "linePlot", "pointShowsMean", "boxPlot", "barPlot")
-)
 
-ggplot(dataVisualize, aes(x = tTestANOVA, y = amount, fill = plotType)) +
-  geom_bar(position = "stack", stat = "identity") +
-  theme_classic() +
-  scale_fill_manual(
-    values = c(
-      "#53c12c", "#94e2d9",
-      "#9692ff", "#4a6ac3",
-      "#ff9fb1", "#7c1158"
-    )
-  ) +
-  scale_y_continuous(limits = c(0, 75), breaks = seq(0, 75, by = 10))
+
+# # Visualize tTestANOVA and Special Cases separately ----
+# dataVisualize <- dataApply %>% filter(didPlot == "yes") %>% group_by(tTestANOVA, plotType) %>% summarize(amount = n())
+# dataVisualize
+#
+# dataVisualize$tTestANOVA <- factor(dataVisualize$tTestANOVA, levels = c("yes", "no"))
+#
+# dataVisualize$plotType <- factor(
+#   dataVisualize$plotType,
+#   levels = c("raincloud", "similarToRaincloud", "linePlot", "pointShowsMean", "boxPlot", "barPlot")
+# )
+#
+# ggplot(dataVisualize, aes(x = tTestANOVA, y = amount, fill = plotType)) +
+#   geom_bar(position = "stack", stat = "identity") +
+#   theme_classic() +
+#   scale_fill_manual(
+#     values = c(
+#       "#53c12c", "#94e2d9",
+#       "#9692ff", "#4a6ac3",
+#       "#ff9fb1", "#7c1158"
+#     )
+#   ) +
+#   scale_y_continuous(limits = c(0, 75), breaks = seq(0, 75, by = 10))
 
 
 
 # Visualize collapsed ----
 dataCollapsed <- dataApply %>% filter(didPlot == "yes") %>% group_by(plotType) %>% summarize(amount = n())
 dataCollapsed
-dataCollapsed$plotType <- factor(
-  dataCollapsed$plotType,
-  levels = c("barPlot", "pointShowsMean", "boxPlot", "linePlot", "similarToRaincloud", "raincloud")
-)
-
-# Visualize Proportions
-# Exported as pdf with size: 4.38 x 4.86 inches
-ggplot(dataCollapsed, aes(x = 1, y = amount, fill = plotType)) +
-  geom_bar(position = "fill", stat = "identity") +
-  theme_classic() +
-  scale_fill_manual(
-    values = c(
-      "#BA0057", "#FB8B00",
-      "#424342", "#C2AFF0",
-      "#00A9E6", "#00BA63"
-    )
-  ) +
-  scale_y_continuous(
-    breaks = seq(0, 1, by = 0.20),
-    labels = scales::percent_format(accuracy = 1)
-  ) +
-  ylab("Percent")
+# dataCollapsed$plotType <- factor(
+#   dataCollapsed$plotType,
+#   levels = c("barPlot", "pointShowsMean", "boxPlot", "linePlot", "similarToRaincloud", "raincloud")
+# )
+#
+# # Visualize Proportions
+# # Exported as pdf with size: 4.38 x 4.86 inches
+# ggplot(dataCollapsed, aes(x = 1, y = amount, fill = plotType)) +
+#   geom_bar(position = "fill", stat = "identity") +
+#   theme_classic() +
+#   scale_fill_manual(
+#     values = c(
+#       "#BA0057", "#FB8B00",
+#       "#424342", "#C2AFF0",
+#       "#00A9E6", "#00BA63"
+#     )
+#   ) +
+#   scale_y_continuous(
+#     breaks = seq(0, 1, by = 0.20),
+#     labels = scales::percent_format(accuracy = 1)
+#   ) +
+#   ylab("Percent")
 
 # Calculate proportions
 nPlotted <- sum(dataCollapsed$amount)
