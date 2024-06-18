@@ -12,8 +12,6 @@
 # Libraries ----
 library("tidyverse")
 library("readxl")
-library("ggplot2")
-
 
 
 # Load data ----
