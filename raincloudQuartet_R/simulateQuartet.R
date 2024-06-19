@@ -105,7 +105,7 @@ while (fine == FALSE) {
 print(fine)
 
 
-# Final Check:
+# Check t-statistic:
 makeCloud(v1SkewedData, -1.1, 1.1)
 makeCloud(wipSkewedData, -1.1, 1.1)
 isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
@@ -122,7 +122,40 @@ print(fine)
 isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
 
 
-# write.csv(wipSkewedData, "./quartetData/skewedData.csv")  # Commented out just for safety
+# Check that confidence interval limits match between normal and skewed data
+normalTTest <- stats::t.test(x = normalData, conf.level = 0.95)
+normalCIs <- normalTTest[["conf.int"]]
+normalLower <- normalCIs[1]
+normalUpper <- normalCIs[2]
+sd(normalData)
+
+wipSkewedTTest <- stats::t.test(x = wipSkewedData, conf.level = 0.95)
+wipSkewedCIs <- wipSkewedTTest[["conf.int"]]
+wipSkewedLower <- wipSkewedCIs[1]
+wipSkewedUpper <- wipSkewedCIs[2]
+sd(wipSkewedData)
+
+# Interim Summary: The upper confidence limit of the skewed data is slightly too low.
+round(normalUpper, 4)
+round(wipSkewedUpper, 4)
+
+# I will thus slightly increase the SD of wipSkewedData in order to get a match for first two decimals.
+
+
+fine <- round( stats::t.test(x = wipSkewedData, conf.level = 0.95)[["conf.int"]][2], 2) == 0.10
+while (fine == FALSE) {
+  wipSkewedData[39] <- wipSkewedData[39] + 0.0001
+  fine <- round( stats::t.test(x = wipSkewedData, conf.level = 0.95)[["conf.int"]][2], 2) == 0.10
+}
+print(fine)
+isErrorOk(wipSkewedData, targetMean, targetSd, targetPValue)
+
+
+# Final Check:
+round(t.test(wipSkewedData, alternative = "greater", mu = 0)$statistic, 2) == 1.67
+
+
+write.csv(wipSkewedData, "./quartetData/skewedData.csv")  # Commented out just for safety
 skewedData <- read.csv("./quartetData/skewedData.csv")
 skewedData <- as.vector(skewedData[ , 2])
 makeCloud(skewedData)
