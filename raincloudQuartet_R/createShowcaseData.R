@@ -25,9 +25,9 @@ design3x1 <- data.frame(
   id = rep(1:sampleSizePerGroup, 3),  # 3, because factorA has three levels
 
   factorA = c(
-    rep("levelA", sampleSizePerGroup),
-    rep("levelB", sampleSizePerGroup),
-    rep("levelC", sampleSizePerGroup)
+    rep("Level A", sampleSizePerGroup),
+    rep("Level B", sampleSizePerGroup),
+    rep("Level C", sampleSizePerGroup)
   ),
 
   covariate = c(  # Higher in the first two levels than in levelC
@@ -88,6 +88,12 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
   scale_color_viridis_c(option =  "A")
 
 
+# Tidy variables
+design3x1[["Factor"]] <- design3x1$factorA
+design3x1[["Covariate"]] <- design3x1$covariate
+design3x1[["Dependent Variable"]] <- design3x1$dependentVariable
+
+design3x1 <- subset(design3x1, select = -c(factorA, covariate, dependentVariable))
 
 # write.csv(design3x1, "./showcaseData/design3x1.csv")  # Commented out just for safety
 
@@ -172,60 +178,23 @@ ggplot(irisFertilizer, aes(time, sepalWidth, fill = Species)) +
   scale_fill_brewer(palette = 'Dark2')
 
 
-# write.csv(irisFertilizer, "./showcaseData/design2x2.csv")  # Commented out just for safety
-
-
-
-# 3x2 Design ----
-
-# fully between design
-
-# factorM is for the three manipulations
-# factorG are the two groups
-
-sampleSizePerGroup <- 40
-
-set.seed(1)
-design3x2 <- data.frame(
-
-  factorM = c(
-    rep(rep("A", sampleSizePerGroup), 2),  # There are two groups (factorG), so outer rep() is 2
-    rep(rep("B", sampleSizePerGroup), 2),
-    rep(rep("C", sampleSizePerGroup), 2)
-  ),
-
-  factorG = c(
-    rep(
-      c(rep("experimental", sampleSizePerGroup), rep("control", sampleSizePerGroup)),
-      3
-    )
-  ),
-
-  dependentVariable = c(
-
-    rnorm(sampleSizePerGroup, .70, .10),  # Both groups are equal in first manipulation
-    rnorm(sampleSizePerGroup, .70, .10),
-
-    rnorm(sampleSizePerGroup, .45, .10),  # Both groups are equal, but lower in second
-    rnorm(sampleSizePerGroup, .45, .10),
-
-    rnorm(sampleSizePerGroup, .70, .10),  # Groups differ
-    rnorm(sampleSizePerGroup, .45, .10)
-
-  )
-)
+# Tidy variables
+irisFertilizer[["Sepal Width"]] <- irisFertilizer$sepalWidth
+levels(irisFertilizer$Species) <- c("Setosa", "Versicolor", "Virginica")
+irisFertilizer[["Sepal Width"]] <- irisFertilizer$sepalWidth
+colnames(irisFertilizer)[2] <- 'Time'
+levels(irisFertilizer$Time) <- c("1", "2", "2")  # Because I am lazy and do not want to rename the third level to "2"
 
 # Visualize
-ggplot(design3x2, aes(factorM, dependentVariable, fill = factorG)) +
+ggplot(irisFertilizer, aes(Time, .data[["Sepal Width"]], fill = Species)) +
   geom_rain(
     alpha = .5,
-    rain.side = "f",
+    rain.side = "f2x2",
+    id.long.var = "id"
   ) +
   theme_classic() +
   scale_fill_brewer(palette = 'Dark2')
 
 
-# write.csv(design3x2, "./showcaseData/design3x2.csv")  # Commented out just for safety
-
-
+write.csv(irisFertilizer, "./showcaseData/design2x2.csv")  # Commented out just for safety
 
