@@ -24,10 +24,10 @@ design3x1 <- data.frame(
 
   id = rep(1:sampleSizePerGroup, 3),  # 3, because factorA has three levels
 
-  factorA = c(
-    rep("Level A", sampleSizePerGroup),
-    rep("Level B", sampleSizePerGroup),
-    rep("Level C", sampleSizePerGroup)
+  condition = c(
+    rep("A", sampleSizePerGroup),
+    rep("B", sampleSizePerGroup),
+    rep("C", sampleSizePerGroup)
   ),
 
   covariate = c(  # Higher in the first two levels than in levelC
@@ -43,13 +43,13 @@ design3x1 %>% filter(covariate < 0) %>% nrow()
 
 # Add dependentVariable
 set.seed(1)
-dvLevelA <- rnorm(mean = 0.50,  sd = 0.10, n = sampleSizePerGroup)
-dvLevelA <- sort(dvLevelA, decreasing = TRUE)
+dvConditionA <- rnorm(mean = 0.50,  sd = 0.10, n = sampleSizePerGroup)
+dvConditionA <- sort(dvConditionA, decreasing = TRUE)
 
-design3x1$dependentVariable <- rep(dvLevelA, 3)
+design3x1$dependentVariable <- rep(dvConditionA, 3)
 
 # Visualize interim result
-ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
+ggplot(design3x1, aes(condition, dependentVariable, fill = condition)) +
   geom_rain(alpha = .5, cov = "covariate", id.long.var = "id") +
   theme_classic() +
   scale_fill_brewer(palette = 'Dark2') +
@@ -59,24 +59,24 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 
 # IDs 6 to 20 wont change across the three levels, but the rest will
 set.seed(1)
-dvLevelB <- dvLevelA + c(
+dvConditionB <- dvConditionA + c(
   rnorm(mean = -0.01, sd = 0.05, 5),
   rep(0, 15),
   rnorm(mean = -0.01, sd = 0.05, 30)
 )
 
 set.seed(1)
-dvLevelC <- dvLevelA + c(
+dvConditionC <- dvConditionA + c(
   rnorm(mean = 0.10, sd = 0.05, 5),
   rep(0, 15),
   rnorm(mean = 0.11, sd = 0.05, 30)
 )
 
-design3x1$dependentVariable <- c(dvLevelA, dvLevelB, dvLevelC)
+design3x1$dependentVariable <- c(dvConditionA, dvConditionB, dvConditionC)
 
 design3x1$dependentVariable <- round(design3x1$dependentVariable, 2)  # Round to percent (2 decimal places)
 
-ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
+ggplot(design3x1, aes(condition, dependentVariable, fill = condition)) +
   geom_rain(
     alpha = .5,
     id.long.var = "id",
@@ -89,11 +89,11 @@ ggplot(design3x1, aes(factorA, dependentVariable, fill = factorA)) +
 
 
 # Tidy variables
-design3x1[["Factor"]] <- design3x1$factorA
+design3x1[["Condition"]] <- design3x1$condition
 design3x1[["Covariate"]] <- design3x1$covariate
 design3x1[["Dependent Variable"]] <- design3x1$dependentVariable
 
-design3x1 <- subset(design3x1, select = -c(factorA, covariate, dependentVariable))
+design3x1 <- subset(design3x1, select = -c(condition, covariate, dependentVariable))
 
 # write.csv(design3x1, "./showcaseData/design3x1.csv")  # Commented out just for safety
 
@@ -183,7 +183,7 @@ irisFertilizer[["Sepal Width"]] <- irisFertilizer$sepalWidth
 levels(irisFertilizer$Species) <- c("Setosa", "Versicolor", "Virginica")
 irisFertilizer[["Sepal Width"]] <- irisFertilizer$sepalWidth
 colnames(irisFertilizer)[2] <- 'Time'
-levels(irisFertilizer$Time) <- c("1", "2", "2")  # Because I am lazy and do not want to rename the third level to "2"
+levels(irisFertilizer$Time) <- c("1", "2", "2")  # This renames the factor levels. The 2nd levels was filtered out above
 
 # Visualize
 ggplot(irisFertilizer, aes(Time, .data[["Sepal Width"]], fill = Species)) +
@@ -196,5 +196,5 @@ ggplot(irisFertilizer, aes(Time, .data[["Sepal Width"]], fill = Species)) +
   scale_fill_brewer(palette = 'Dark2')
 
 
-write.csv(irisFertilizer, "./showcaseData/design2x2.csv")  # Commented out just for safety
+# write.csv(irisFertilizer, "./showcaseData/design2x2.csv")  # Commented out just for safety
 
