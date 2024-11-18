@@ -58,7 +58,7 @@ dataApply %>% group_by(year, tTestANOVA) %>% summarize(amount = n())
 # How many of the applicable reports plotted the data?
 dataApply %>% group_by(year, didPlot) %>% summarize(amount = n())
 # In 2013, 81 did plot their data.
-81 / 99  # 81%
+81 / 99  # 82%
 
 # In 2023, 94 did plot their data.
 94 / 105  # 90%
