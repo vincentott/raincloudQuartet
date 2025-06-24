@@ -8,6 +8,7 @@ quartetData folder (.jasp file in here is to calculate confidence interval for C
 The evaluation of plots from the Psychonomic Bulletin & Review (PBR) needs:
 dataPbrPlotting.xlsx
 analyseDataPbrPlotting.R
+-> The "similarToRaincloud" plotType are called raw data plots in the article.
 
 The data to showcase raincloud plots in JASP needs:
 createShowcaseData.R
