@@ -1,2 +1,2 @@
 # raincloudQuartet
-Files for the article: Informative Raincloud Plots in JASP.
+Files for the article: Informative Data Visualization with Raincloud Plots in JASP.
